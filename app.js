@@ -142,10 +142,17 @@ async function initMongoDb() {
     await mongodber.init(databases);
 }
 
+// 数据库初始化
+async function initMySql() {
+	const mysqler = require('./src/utils/mysqler');
+	let databases = config.get('MYSQL');
+    await mysqler.init(databases);
+}
 
 (async function init() {
     // 初始化数据库连接
     await initMongoDb();
+	await initMySql()
     // 初始化中间件
     initMiddleware(app);
     // 启动服务

@@ -17,7 +17,7 @@ module.exports = {
         "cmp_db": {
             host: 'localhost',       
             user: 'vj',              
-            password: '123456',       
+            password: '666666',       
             port: '3306',                   
             database: 'cmp_db' 
         }
