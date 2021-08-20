@@ -1,6 +1,6 @@
 /* eslint-disable quotes,no-process-env */
 module.exports = {
-    "PORT": process.env.NODE_PORT || 8080,
+    "PORT": process.env.NODE_PORT || 8888,
 
     "MONGODBS": {
         "cmp_db": "mongodb://127.0.0.1:27017/cmp_db"
@@ -16,7 +16,7 @@ module.exports = {
     "MYSQL": {
         "cmp_db": {
             host: 'localhost',       
-            user: 'vj',              
+            user: 'root',              
             password: '666666',       
             port: '3306',                   
             database: 'cmp_db' 

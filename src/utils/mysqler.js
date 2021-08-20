@@ -1,33 +1,34 @@
- //let MySql = require('@mysql/xdevapi');
-let MySql = require('mysql');
-// let MySql = require('promise-mysql');
-
+const MySql = require('mysql');
+const config = require('../../config/development');
 /*
  * MySqler class
  */
 function MySqler() {
-    this.dbs = {};
+    this.pools = {};
+    this.dbs_conf = config.MYSQL
 }
 
-MySqler.prototype.init = async function (dbs_conf) {
-    this.dbs_conf = dbs_conf;
-    for (let name in dbs_conf) {
-        if (!dbs_conf.hasOwnProperty(name)) continue;
+MySqler.prototype.query = async function (name, sql, params) {
+    for (let name in this.dbs_conf) {
+        if (!this.dbs_conf.hasOwnProperty(name) || this.pools[name]) continue;
         console.log(`init ${name}`);
-        let db_cof = dbs_conf[name];
+        let db_cof = this.dbs_conf[name];
         try {
-            // let connection = MySql.getSession(db_cof);
-            let connection = await MySql.createConnection(db_cof);
-            //connection.connect();
-            this.dbs[name] = connection;
+            this.pools[name] = await MySql.createPool(db_cof);
         } catch (e) {
             throw new Error(`Init ${name} failed: ${e.message}`);
         }
     };
-};
-
-MySqler.prototype.use = function (name) {
-    return this.dbs[name];
+    return new Promise((resolve, reject) => {
+        this.pools[name].getConnection((err, connection) => {//初始化连接池
+            if (err) console.log(err,'数据库连接失败');
+            else connection.query(sql, [params],(err, results) => {//去数据库查询数据
+                connection.release()//释放连接资源
+                if (err) reject(err);
+                else resolve(results);
+            })
+        })
+    })
 };
 
 module.exports = new MySqler();

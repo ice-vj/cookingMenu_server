@@ -1,34 +1,35 @@
 
 const baseClass = require('../utils/baseClass');
-const mongodb = require('mongodb');
-const ObjectId = mongodb.ObjectId;
-const BaseModel = require('../utils/baseModel'); 
-const baseModel = new BaseModel();
+const BaseModel = require('../utils/baseModelSql');
+const mysqler = require('../utils/mysqler');
+const MySqler = require('../utils/mysqler');
 class Menu extends baseClass{
     constructor() {
         super();
+        this.DBName = 'cmp_db';
+        this.TableName = 'types';
     }
-    async initTypes ({request: req, response: res}) {
+
+    async initTypes ({request: req, response: res, util}) {
         const initTypes = [
-            '特色',
-            '肉类',
-            '蛋炒',
-            '素菜',
-            '凉菜',
-            '汤粥',
-            '主食',
+            ['特色'],
+            ['肉类'],
+            ['蛋炒'],
+            ['素菜'],
+            ['凉菜'],
+            ['汤粥'],
+            ['主食'],
         ];
-        await baseModel._addInstance('config', {
-            _id: 'type',
-            data: initTypes 
-        });
+        await MySqler.query(this.DBName, BaseModel.CREATE_TABLE(this.TableName));
+        await MySqler.query(this.DBName, BaseModel.INSERT_DATA(this.TableName, 'name'), initTypes)
         return res.wrapper.succ(initTypes);
     }
 
     async getTypes ({ request: req, response: res }) {
-        let r = await baseModel._getInstanceByCond('config', {_id: 'type'});
-        if (r && r.data) return res.wrapper.succ(r.data);
-        else this.initTypes({request: req, response: res});
+        const types = await MySqler.query(this.DBName, BaseModel.QUERY_DATAS(this.TableName, 'name'));
+        let resultData = [];
+        if (types) resultData = types.map(e => e.name).filter(e => e);
+        return res.wrapper.succ(resultData);
     }
 
     async getMenu({ request: req, response: res })  {
